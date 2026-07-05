@@ -1,0 +1,174 @@
+#include <Mouse.h>
+#include <Adafruit_NeoPixel.h>
+
+#define NUMPIXELS 1
+
+Adafruit_NeoPixel pixelLED(NUMPIXELS, PIN_NEOPIXEL, NEO_GRB + NEO_KHZ800);
+
+void setup() {
+  // init serial
+  Serial.begin(115200);
+  while(!Serial); // wait for device to come online
+  delay(2000); // Give time for USB to stabilize
+
+  // init neopixel
+  pinMode(NEOPIXEL_POWER, OUTPUT);
+  digitalWrite(NEOPIXEL_POWER, HIGH);
+
+  pixelLED.begin();
+  pixelLED.setBrightness(20);
+  pixelLED.setPixelColor(0, pixelLED.Color(255, 0, 0));
+  pixelLED.show();
+
+  analogReadResolution(14); // set ADC resolution to 14 bits (0-16383)
+
+  // init mouse
+  Mouse.begin();
+}
+
+bool isRunning = false;
+bool isDebugRunning = false;
+float timeBetweenClicks = 0.5; // seconds
+int clickCount = 10;
+int currentClickCount = 0;
+
+#define SampleCount 12000
+#define PreClickSamples 2000 // ~48ms of baseline before click, enough for ADC drift to settle (~12ms)
+uint16_t adcBuff[SampleCount];
+
+void runTest() {
+    int currentSampleCount = 0;
+    unsigned long startTimer = micros();
+
+    // Phase 1: collect pre-click baseline samples (ADC drift settles within ~12ms)
+    while (currentSampleCount < PreClickSamples) {
+      adcBuff[currentSampleCount] = analogRead(A1);
+      currentSampleCount++;
+      delayMicroseconds(20);
+    }
+
+    // Phase 2: fire the click
+    unsigned long clickTime = micros();
+    Mouse.press(MOUSE_LEFT);
+    unsigned long afterClick = micros();
+    unsigned long clickDuration = afterClick - clickTime;
+
+    // Phase 3: collect post-click samples capturing the transition
+    while (currentSampleCount < SampleCount) {
+      adcBuff[currentSampleCount] = analogRead(A1);
+      currentSampleCount++;
+      delayMicroseconds(20);
+    }
+
+    unsigned long endTimer = micros();
+    unsigned long timeTaken = endTimer - startTimer;
+
+    Mouse.release(MOUSE_LEFT);
+
+    Serial.print("CSV");
+    Serial.print(clickDuration);
+    Serial.print(",");
+    Serial.print(timeTaken);
+    Serial.print(",");
+    Serial.print(SampleCount);
+    Serial.print(",");
+    Serial.print(PreClickSamples); // click sample index so host knows where the click happened
+    Serial.print(",");
+
+    for (int i = 0; i < SampleCount; i++) {
+      Serial.print(adcBuff[i]);
+      Serial.print(";");
+    }
+
+    Serial.println();
+    Serial.flush(); // wait for serial data to fully transmit before next measurement — HID and CDC share the USB bus, so lingering serial traffic can delay Mouse.press() delivery
+}
+
+void loop() {
+  /*
+   * Serial toggle
+  */
+  if (Serial.available()) {
+    char cmd = Serial.read();
+
+    if (cmd == '1') {
+      pixelLED.setBrightness(0);
+      pixelLED.show();
+
+      Serial.println("Starting latency test in 3 seconds...");
+      Serial.println("Current time between clicks: " + String(timeBetweenClicks) + " seconds");
+      Serial.println("Current click count: " + String(clickCount));
+
+      delay(3000);
+      isRunning = true;
+    } else if (cmd == '0') {
+      isRunning = false;
+      isDebugRunning = false;
+
+      Serial.println("Stopped");
+      pixelLED.setBrightness(20);
+      pixelLED.setPixelColor(0, pixelLED.Color(255, 0, 0));
+      pixelLED.show();
+    } else if (cmd == 'd') {
+      pixelLED.setBrightness(0);
+      pixelLED.show();
+
+      Serial.println("Enabled debug mode");
+      isDebugRunning = true;
+    } else if (cmd == 'i') {
+      if (Serial.available() > 0) {
+        float newInterval = Serial.parseFloat();
+        if (newInterval > 0) {
+          timeBetweenClicks = newInterval;
+          Serial.println("Interval set to: " + String(timeBetweenClicks) + " seconds");
+        } else {
+          Serial.println("Invalid interval value");
+        }
+      }
+    } else if (cmd == 'c') {
+      if (Serial.available() > 0) {
+        float newClickCount = Serial.parseInt();
+        if (newClickCount > 0) {
+          clickCount = newClickCount;
+          Serial.println("click count set to: " + String(clickCount));
+        } else {
+          Serial.println("Invalid click count value");
+        }
+      }
+    }
+  }
+
+  // unsigned long PERF_start = micros();
+  // unsigned long PERF_stop = micros();
+  // Serial.print("PERF,");
+  // Serial.println(PERF_stop - PERF_start);
+
+  if (isRunning) {
+    if (currentClickCount < clickCount) {
+      // Serial.println("Click " + String(currentClickCount+1) + " of " + String(clickCount));
+      runTest();
+
+      delay(timeBetweenClicks * 1000);
+      currentClickCount++;
+    } else {
+      isRunning = false;
+      currentClickCount = 0;
+      pixelLED.setBrightness(20);
+      pixelLED.setPixelColor(0, pixelLED.Color(255, 0, 0));
+      pixelLED.show();
+
+      Serial.println("DONE");
+      Serial.flush();
+      return;
+    }
+  }
+
+  if (isDebugRunning) {
+    uint16_t raw = analogRead(A1); // 14-bit ADC: 0 - 16383
+    float voltage = (raw * 3.3) / 16383.0; // Convert to voltage
+    Serial.print("Raw ADC: ");
+    Serial.print(raw);
+    Serial.print(", Voltage: ");
+    Serial.println(voltage, 4);
+  }
+}

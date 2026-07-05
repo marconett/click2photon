@@ -1,0 +1,34 @@
+# File system junk files
+Desktop.ini
+Thumbs.db
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+.apdisk
+.fseventsd
+.Trash-*
+
+# Editor files
+*.sublime-*
+.netrwhist
+[._]*.s[a-w][a-z]
+[._]s[a-w][a-z]
+.c9
+.idea/
+
+# Files that might appear on external disks
+.Spotlight-V100
+.Trashes
+
+# Application specific stuff
+__pycache__/
+.venv/
+*.csv
+color-switcher-vulkan/build/
+hardware/kicad/*
+!hardware/kicad/*.kicad_pcb
+!hardware/kicad/*.kicad_prl
+!hardware/kicad/*.kicad_pro
+!hardware/kicad/*.kicad_sch
+PROMPT.md
