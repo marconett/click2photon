@@ -22,6 +22,14 @@ void setup() {
 
   analogReadResolution(14); // set ADC resolution to 14 bits (0-16383)
 
+  // seed RNG from ADC noise — unseeded random() repeats the same sequence every
+  // boot, which would make the inter-click jitter identical across sessions
+  uint32_t seed = micros();
+  for (int i = 0; i < 32; i++) {
+    seed = (seed << 1) ^ analogRead(A1);
+  }
+  randomSeed(seed);
+
   // init mouse
   Mouse.begin();
 }
@@ -148,7 +156,14 @@ void loop() {
       // Serial.println("Click " + String(currentClickCount+1) + " of " + String(clickCount));
       runTest();
 
-      delay(timeBetweenClicks * 1000);
+      // ±10ms random jitter decorrelates click timing from the display refresh
+      // phase — a fixed interval can repeatedly land at the same scanout
+      // position. Generated in µs, not ms: whole-ms offsets modulo a 2ms frame
+      // period (500Hz) hit only two phases; µs resolution covers all of them.
+      long delayUs = (long)(timeBetweenClicks * 1000000.0f) + random(-10000, 10001);
+      if (delayUs < 0) delayUs = 0;
+      delay(delayUs / 1000);
+      delayMicroseconds(delayUs % 1000);
       currentClickCount++;
     } else {
       isRunning = false;
