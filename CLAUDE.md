@@ -21,7 +21,7 @@ This is an end-to-end display latency measurement tool. It measures the time fro
 
 ### Host Control Software (`main.py`)
 - Async serial terminal using `prompt_toolkit` for interactive control
-- Connects to `/dev/cu.usbmodem101` at 115200 baud
+- Auto-detects the device by USB VID/PID (0x239A/0x80F7, Adafruit QT Py RP2040) at 115200 baud; falls back to `/dev/cu.usbmodem*`/`/dev/ttyACM*` name matching. Pass a port as first CLI arg to override (`uv run main.py /dev/ttyACM1`). Ports are re-scanned on every connect, so Linux re-enumeration (ttyACM0 → ttyACM1) is handled automatically.
 - Commands: `start`, `stop`, `debug`/`d`, `interval <n>`/`i <n>`, `clicks <n>`/`c <n>`, `connect`, `disconnect`
 - CSV output goes to `output/` with timestamp-based filenames
 
@@ -54,8 +54,10 @@ uv run analyze.py <csv_file> [<csv_file> ...] [-t <threshold>]
 
 ### Firmware compile and flash
 ```
-./flash_rp2040.sh
-# or manually:
+./flash_rp2040.sh                 # installs the rp2040 core on first run, auto-detects the port
+./flash_rp2040.sh /dev/ttyACM1    # or pass the port explicitly
+# or manually (the rp2040:rp2040 core comes from a third-party index, not Arduino's default):
+arduino-cli core install rp2040:rp2040 --additional-urls https://github.com/earlephilhower/arduino-pico/releases/download/global/package_rp2040_index.json
 arduino-cli compile --fqbn rp2040:rp2040:adafruit_qtpy arduino
 arduino-cli upload -p /dev/cu.usbmodem101 --fqbn rp2040:rp2040:adafruit_qtpy arduino
 ```

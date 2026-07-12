@@ -6,10 +6,30 @@ from datetime import datetime
 csv.field_size_limit(sys.maxsize)
 from serial import Serial, SerialException
 from serial.serialutil import PortNotOpenError
+from serial.tools import list_ports
 from prompt_toolkit import PromptSession
 from prompt_toolkit.patch_stdout import patch_stdout
 from prompt_toolkit import print_formatted_text
 from prompt_toolkit.formatted_text import HTML
+
+# Adafruit QT Py RP2040
+USB_VID = 0x239A
+USB_PID = 0x80F7
+
+
+def find_device_port() -> str | None:
+    ports = list_ports.comports()
+
+    for p in ports:
+        if p.vid == USB_VID and p.pid == USB_PID:
+            return p.device
+
+    # Fallback: any USB CDC device (macOS: cu.usbmodem*, Linux: ttyACM*)
+    for p in ports:
+        if p.device.startswith(('/dev/cu.usbmodem', '/dev/ttyACM')):
+            return p.device
+
+    return None
 
 
 class CSVHandler:
@@ -50,8 +70,8 @@ class CSVHandler:
 
 
 class SerialTerminal:
-    def __init__(self, port: str, baudrate: int = 115200):
-        self.port = port
+    def __init__(self, port: str | None = None, baudrate: int = 115200):
+        self.port = port  # fixed port override; None = auto-detect on each connect
         self.baudrate = baudrate
         self.serial = None
         self.serial_connected = False
@@ -60,15 +80,38 @@ class SerialTerminal:
         self.csv_handler = None
 
     async def connect(self):
-        try:
-            self.serial = Serial(self.port, self.baudrate, timeout=0.1)
-            self.serial_connected = True
-            print_formatted_text(HTML("<ansiyellow>Connected</ansiyellow>"))
-        except Exception as e:
-            if isinstance(e, SerialException):
-                print_formatted_text(HTML("<ansired>Reconnecting ...</ansired>"))
+        waiting_reported = False
+        permission_hint_shown = False
+        while not self.should_exit:
+            # Re-scan every attempt: on Linux the device can re-enumerate
+            # under a new name (ttyACM0 -> ttyACM1) after a reconnect.
+            port = self.port or find_device_port()
+
+            if port is None:
+                if not waiting_reported:
+                    print_formatted_text(HTML("<ansiyellow>Waiting for device ...</ansiyellow>"))
+                    waiting_reported = True
                 await asyncio.sleep(1)
-                await self.connect()
+                continue
+
+            try:
+                self.serial = await asyncio.to_thread(Serial, port, self.baudrate, timeout=0.1)
+                self.serial_connected = True
+                print_formatted_text(HTML(f"<ansiyellow>Connected to {port}</ansiyellow>"))
+                return
+            except SerialException as e:
+                if 'permission' in str(e).lower():
+                    if not permission_hint_shown:
+                        permission_hint_shown = True
+                        print_formatted_text(HTML(
+                            f"<ansired>Permission denied opening {port}.</ansired>\n"
+                            f"<ansiyellow>Add yourself to the serial group and re-login:\n"
+                            f"  sudo usermod -a -G dialout $USER   (Debian/Ubuntu/Fedora)\n"
+                            f"  sudo usermod -a -G uucp $USER      (Arch)</ansiyellow>"
+                        ))
+                else:
+                    print_formatted_text(HTML("<ansired>Reconnecting ...</ansired>"))
+                await asyncio.sleep(1)
 
     async def disconnect(self):
         self.serial_connected = False
@@ -224,12 +267,13 @@ class SerialTerminal:
 
 
 async def main():
-    port = '/dev/cu.usbmodem101'
+    port = sys.argv[1] if len(sys.argv) > 1 else None
     baudrate = 115200
 
     terminal = SerialTerminal(port, baudrate)
     terminal.print_help_text()
-    print_formatted_text(HTML(f"<ansiyellow>\nStarting terminal on {port} at {baudrate} baud</ansiyellow>"))
+    port_label = port if port else "auto-detected device"
+    print_formatted_text(HTML(f"<ansiyellow>\nStarting terminal on {port_label} at {baudrate} baud</ansiyellow>"))
 
     await terminal.run()
 
