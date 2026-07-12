@@ -3,9 +3,10 @@
 
 Analyzes every direct subfolder of the given folder (each subfolder = one
 test case, pooled across its CSV files) and prints chart-ready JSON: the
-subfolder names as labels, and median / margin of error / p5 / p95 as
-datasets, sorted fastest median first. All stats come from analyze.py's
-collect_stats; this script only iterates and assembles the JSON.
+subfolder names as labels, and median / p5 / p95 as datasets (the median
+dataset carries the margin of error as a per-item `error` array), sorted
+fastest median first. All stats come from analyze.py's collect_stats; this
+script only iterates and assembles the JSON.
 """
 import argparse
 import json
@@ -17,7 +18,6 @@ from analyze import DEFAULT_THRESHOLD, collect_stats, histogram_counts
 BIN_MS = 0.5
 DATASETS = [
     ('MEDIAN', 'median_ms'),
-    ('MARGIN OF ERROR', 'moe_ms'),
     ('P5', 'p5_ms'),
     ('P95', 'p95_ms'),
 ]
@@ -56,6 +56,9 @@ if __name__ == '__main__':
             {
                 'label': label,
                 'data': [round(stats[key], 2) for _, stats in results],
+                # error bar ± half-width around each median
+                **({'error': [round(stats['moe_ms'], 2) for _, stats in results]}
+                   if key == 'median_ms' else {}),
                 'tooltipPosition': 'end',
             }
             for label, key in DATASETS
