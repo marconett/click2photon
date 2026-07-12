@@ -29,7 +29,7 @@ This is an end-to-end display latency measurement tool. It measures the time fro
 - C++ Vulkan app for low-latency rendering. Toggles the screen black/white on mouse click.
 
 ### Data Processing
-- `analyze.py`: Latency analyzer using m2p-latency's delta-from-baseline threshold approach. Per CSV row: averages the last 200 pre-click samples as baseline, scans post-click samples for a threshold crossing (default 100 ADC units, `-t` to override), reports per-row latency plus mean/sd/median/min/max. Terminal output only, no plotting.
+- `analyze.py`: Latency analyzer using m2p-latency's delta-from-baseline threshold approach. Per CSV row: averages the last 200 pre-click samples as baseline, scans post-click samples for a threshold crossing (default 100 ADC units, `-t` to override), reports mean (± 95% margin of error), sd, median, min, max. Arguments can be CSV files or folders: a folder is scanned recursively for `.csv` files and pooled into one result, with the margin of error design-effect adjusted across files (each file = one session); single files get the naive 1.96·sd/√n margin. Terminal output only, no plotting.
 
 ### Hardware (`hardware/`)
 - KiCad PCB files, breadboard layout (`breadboard.diy`), 3D-printable enclosure
@@ -49,7 +49,7 @@ uv run main.py
 
 ### Process latency data
 ```
-uv run analyze.py <csv_file> [<csv_file> ...] [-t <threshold>]
+uv run analyze.py <csv_file_or_folder> [<csv_file_or_folder> ...] [-t <threshold>]
 ```
 
 ### Firmware compile and flash
