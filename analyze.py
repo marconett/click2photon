@@ -61,14 +61,12 @@ def analyze(path, threshold):
 
     with open(path) as f:
         reader = csv.DictReader(f)
-        for i, row in enumerate(reader):
+        for row in reader:
             latency = compute_latency(row, threshold)
             if latency is not None:
                 latencies_us.append(latency)
-                print(f"  #{i+1:<3d} {latency / 1000:.2f} ms")
             else:
                 skipped += 1
-                print(f"  #{i+1:<3d} no transition detected")
 
     if not latencies_us:
         print(f"No valid measurements in {path}")
