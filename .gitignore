@@ -24,7 +24,7 @@ Thumbs.db
 # Application specific stuff
 __pycache__/
 .venv/
-*.csv
+/output/*.csv
 color-switcher-vulkan/build/
 hardware/kicad/*
 !hardware/kicad/*.kicad_pcb
