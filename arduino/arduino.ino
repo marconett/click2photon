@@ -5,6 +5,11 @@
 
 Adafruit_NeoPixel pixelLED(NUMPIXELS, PIN_NEOPIXEL, NEO_GRB + NEO_KHZ800);
 
+// override arduino-pico's weak default of 10 (USB.cpp) — a 10ms HID bInterval
+// adds a uniform 0-10ms host-poll delay to every measurement; 1ms matches a
+// 1000Hz gaming mouse
+int usb_hid_poll_interval = 1;
+
 void setup() {
   // init serial
   Serial.begin(115200);
