@@ -32,3 +32,5 @@ hardware/kicad/*
 !hardware/kicad/*.kicad_pro
 !hardware/kicad/*.kicad_sch
 PROMPT.md
+deploy.sh
+notes/

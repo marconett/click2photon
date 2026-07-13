@@ -31,7 +31,9 @@ def compute_latency(row, threshold):
     n = len(samples)
     pre_click = int(row.get('preClickSamples', 0))
     duration_us = int(row['timeTaken'])
-    us_per_sample = duration_us / n
+    click_us = int(row.get('clickTime', 0))
+    # timeTaken includes the Mouse.press() pause, which is not sampling time
+    us_per_sample = (duration_us - click_us) / n
 
     # baseline: average of last 200 pre-click samples (or all pre-click if fewer)
     bl_start = max(0, pre_click - 200)
@@ -43,7 +45,8 @@ def compute_latency(row, threshold):
     # scan post-click samples for threshold crossing
     for i in range(pre_click, n):
         if abs(samples[i] - baseline) > threshold:
-            latency_us = (i - pre_click) * us_per_sample
+            # first post-click sample is taken click_us after the click fired
+            latency_us = click_us + (i - pre_click) * us_per_sample
             return latency_us
 
     return None
