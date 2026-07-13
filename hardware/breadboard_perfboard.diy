@@ -1038,31 +1038,6 @@
       <voltage>_63V</voltage>
     </diylc.passive.RadialCeramicDiskCapacitor>
     <diylc.passive.RadialCeramicDiskCapacitor>
-      <id>9ebacf48-dfc4-45e7-8e67-db303a9645e6</id>
-      <name>C2</name>
-      <alphaPercent>
-        <value>100</value>
-      </alphaPercent>
-      <length value="0.25" unit="in"/>
-      <width value="0.125" unit="in"/>
-      <points>
-        <point x="6.6" y="3.2"/>
-        <point x="6.6" y="3.6"/>
-        <point x="6.6" y="3.4"/>
-      </points>
-      <bodyColor hex="f0e68c"/>
-      <borderColor hex="a8a162"/>
-      <labelColor hex="000000"/>
-      <leadColor hex="ff0000"/>
-      <display>NAME</display>
-      <flipStanding>false</flipStanding>
-      <labelOriantation>Directional</labelOriantation>
-      <moveLabel>false</moveLabel>
-      <hideShortLeads>false</hideShortLeads>
-      <pinSpacing value="0.1" unit="in"/>
-      <voltage>_63V</voltage>
-    </diylc.passive.RadialCeramicDiskCapacitor>
-    <diylc.passive.RadialCeramicDiskCapacitor>
       <id>3e05f453-7fde-4e2d-a4d9-f8737304c8cd</id>
       <name>C3</name>
       <alphaPercent>
@@ -1356,9 +1331,9 @@
       <length value="0.25" unit="in"/>
       <width value="0.125" unit="in"/>
       <points>
-        <point x="10.0" y="6.8"/>
+        <point x="10.0" y="6.9"/>
         <point x="10.1" y="6.5"/>
-        <point x="10.05" y="6.65"/>
+        <point x="10.05" y="6.7"/>
       </points>
       <bodyColor hex="f0e68c" alpha="8c"/>
       <borderColor hex="a8a162"/>
@@ -1622,7 +1597,7 @@
         <value>100</value>
       </alphaPercent>
       <controlPoints2>
-        <point x="7.0" y="6.8"/>
+        <point x="7.0" y="6.5"/>
         <point x="6.3" y="6.9"/>
         <point x="6.4" y="7.1"/>
         <point x="6.5" y="7.6"/>
@@ -1709,7 +1684,7 @@
         <point x="9.3" y="7.6"/>
         <point x="9.3" y="7.2"/>
         <point x="9.4" y="7.1"/>
-        <point x="9.9" y="6.8"/>
+        <point x="9.9" y="6.5"/>
       </controlPoints2>
       <color hex="ff0000"/>
       <pointCount>FOUR</pointCount>
@@ -1762,6 +1737,77 @@
       <striped>false</striped>
       <stripeColor hex="ffff00"/>
     </diylc.connectivity.HookupWire>
+    <diylc.connectivity.Jumper>
+      <id>3f8a2c1d-9b4e-4f6a-8c2d-5e7b1a0f4c9e</id>
+      <name>J13</name>
+      <alphaPercent>
+        <value>100</value>
+      </alphaPercent>
+      <points>
+        <point x="6.7" y="3.2"/>
+        <point x="6.6" y="3.5"/>
+        <point x="6.65" y="3.35"/>
+      </points>
+      <bodyColor hex="ffffff"/>
+      <borderColor hex="000000"/>
+      <labelColor hex="000000"/>
+      <leadColor hex="ff0000"/>
+      <display>NAME</display>
+      <flipStanding>false</flipStanding>
+      <labelOriantation>Directional</labelOriantation>
+      <moveLabel>false</moveLabel>
+      <hideShortLeads>false</hideShortLeads>
+      <style>SOLID</style>
+    </diylc.connectivity.Jumper>
+    <diylc.connectivity.CopperTrace>
+      <id>6d1e4b7a-2f8c-4a3e-9d5b-0c6f8e2a7b1d</id>
+      <name>Trace22</name>
+      <alphaPercent>
+        <value>100</value>
+      </alphaPercent>
+      <points>
+        <point x="7.0" y="6.8"/>
+        <point x="7.0" y="7.0"/>
+        <point x="7.0" y="6.9"/>
+      </points>
+      <bodyColor hex="ffffff"/>
+      <borderColor hex="000000"/>
+      <labelColor hex="000000"/>
+      <leadColor hex="00ffff"/>
+      <display>NAME</display>
+      <flipStanding>false</flipStanding>
+      <labelOriantation>Directional</labelOriantation>
+      <moveLabel>false</moveLabel>
+      <hideShortLeads>false</hideShortLeads>
+      <thickness value="1.0" unit="mm"/>
+      <layer>_1</layer>
+      <endingStyle>Round</endingStyle>
+    </diylc.connectivity.CopperTrace>
+    <diylc.passive.RadialCeramicDiskCapacitor>
+      <id>9ebacf48-dfc4-45e7-8e67-db303a9645e6</id>
+      <name>C2</name>
+      <alphaPercent>
+        <value>100</value>
+      </alphaPercent>
+      <length value="0.25" unit="in"/>
+      <width value="0.125" unit="in"/>
+      <points>
+        <point x="6.6" y="3.1"/>
+        <point x="6.6" y="3.6"/>
+        <point x="6.6" y="3.35"/>
+      </points>
+      <bodyColor hex="f0e68c"/>
+      <borderColor hex="a8a162"/>
+      <labelColor hex="000000"/>
+      <leadColor hex="000000"/>
+      <display>NAME</display>
+      <flipStanding>false</flipStanding>
+      <labelOriantation>Directional</labelOriantation>
+      <moveLabel>false</moveLabel>
+      <hideShortLeads>false</hideShortLeads>
+      <pinSpacing value="0.1" unit="in"/>
+      <voltage>_63V</voltage>
+    </diylc.passive.RadialCeramicDiskCapacitor>
   </components>
   <groups/>
   <groupsEx/>
