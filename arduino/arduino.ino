@@ -117,6 +117,7 @@ void loop() {
     } else if (cmd == '0') {
       isRunning = false;
       isDebugRunning = false;
+      currentClickCount = 0;
 
       Serial.println("Stopped");
       pixelLED.setBrightness(20);
@@ -129,24 +130,20 @@ void loop() {
       Serial.println("Enabled debug mode");
       isDebugRunning = true;
     } else if (cmd == 'i') {
-      if (Serial.available() > 0) {
-        float newInterval = Serial.parseFloat();
-        if (newInterval > 0) {
-          timeBetweenClicks = newInterval;
-          Serial.println("Interval set to: " + String(timeBetweenClicks) + " seconds");
-        } else {
-          Serial.println("Invalid interval value");
-        }
+      float newInterval = Serial.parseFloat();
+      if (newInterval > 0) {
+        timeBetweenClicks = newInterval;
+        Serial.println("Interval set to: " + String(timeBetweenClicks) + " seconds");
+      } else {
+        Serial.println("Invalid interval value");
       }
     } else if (cmd == 'c') {
-      if (Serial.available() > 0) {
-        float newClickCount = Serial.parseInt();
-        if (newClickCount > 0) {
-          clickCount = newClickCount;
-          Serial.println("click count set to: " + String(clickCount));
-        } else {
-          Serial.println("Invalid click count value");
-        }
+      long newClickCount = Serial.parseInt();
+      if (newClickCount > 0) {
+        clickCount = newClickCount;
+        Serial.println("click count set to: " + String(clickCount));
+      } else {
+        Serial.println("Invalid click count value");
       }
     }
   }
