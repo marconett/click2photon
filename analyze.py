@@ -184,7 +184,7 @@ def collect_stats(path, threshold):
     if not latencies_us:
         return None
 
-    mean_ms, _ = compute_stats_ms(latencies_us)
+    mean_ms, sd_ms = compute_stats_ms(latencies_us)
     latencies_ms = sorted(l / 1000 for l in latencies_us)
     n = len(latencies_ms)
     median_ms = (latencies_ms[n // 2] if n % 2 else
@@ -198,6 +198,7 @@ def collect_stats(path, threshold):
         'skipped': skipped,
         'mean_ms': mean_ms,
         'moe_ms': margin_of_error_ms(sessions_us),
+        'sd_ms': sd_ms,
         'median_ms': median_ms,
         'p5_ms': p5_ms,
         'p95_ms': p95_ms,
@@ -209,9 +210,9 @@ def collect_stats(path, threshold):
 
 
 def stats_to_json(stats):
-    """JSON-friendly copy of a collect_stats dict: rounded, no raw latencies."""
+    """JSON-friendly copy of a collect_stats dict: rounded, no raw latencies or sd."""
     return {k: round(v, 2) if isinstance(v, float) else v
-            for k, v in stats.items() if k != 'latencies_ms'}
+            for k, v in stats.items() if k not in ('latencies_ms', 'sd_ms')}
 
 
 def analyze(path, threshold):
@@ -226,6 +227,7 @@ def analyze(path, threshold):
     print(f"\n{stats['label']}")
     print(f"  measurements: {stats['measurements']} ({stats['skipped']} skipped)")
     print(f"  mean:   {stats['mean_ms']:.2f} ms ± {stats['moe_ms']:.2f} ms (95% CI)")
+    print(f"  sd:     {stats['sd_ms']:.2f} ms")
     print(f"  median: {stats['median_ms']:.2f} ms")
     print(f"  p5:     {stats['p5_ms']:.2f} ms")
     print(f"  p95:    {stats['p95_ms']:.2f} ms")
