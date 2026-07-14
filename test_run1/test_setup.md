@@ -40,13 +40,17 @@ The test was done based on commit `7bc3f05` of click2photon.
 ## System Settings
 
 - 500 Hz
-- FLIP mode:
-  - X11: OFF (via `nvidia-settings`)
-  - Wayland: No way to turn this off
+- Flip mode:
+  - X11: On (via `nvidia-settings`)
+  - Wayland: confirmed to be on (see below how)
 - If VRR was tested:
   - X11: Enabled via `nvidia-settings` (changing this requires a reboot)
   - Wayland: Enabled via KDE Settings Menu (no reboot needed)
 - `showcompositing` was off on Wayland (see [here](https://www.reddit.com/r/linux_gaming/comments/1u1z4qf/kde_kwin_patches_aiming_to_optimize_gaming/oqvlwdb/))
+
+
+Flip mode (direct scanout) vs Blit mode (compositing) on Wayland: There is setting on Wayland, it decides itself if it composits a frame or uses direct scanout.\
+To make sure the game is running in flip mode: Open "Kwin Debug Console" (it's a GUI tool) and in the "Effects" tab, enable `showcompositing`. Then make sure the game is fully focused and the only thing on screen in fullscreen mode. If there's no red border visible around the edged of the game, it's on Flip mode.
 
 ### dxvk
 

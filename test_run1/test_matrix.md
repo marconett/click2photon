@@ -8,6 +8,7 @@ Three dimensions, two values each → **8 test cases**.
 - **VRR:** ON / OFF
 
 - Plus another 2 special test cases for XWayland
+- Plus another 2 special test cases for low-latency
 
 ---
 
@@ -25,6 +26,8 @@ Three dimensions, two values each → **8 test cases**.
 | 8  | Wayland | OFF        | OFF | -            | [x]  |
 | 9  | Wayland | ON         | OFF | XWayland     | [x]  |
 | 10 | Wayland | OFF        | OFF | XWayland     | [x]  |
+| 11 | X11     | ON         | OFF | Uncapped     | [x]  |
+| 12 | X11     | OFF        | OFF | Uncapped     | [x]  |
 
 ---
 
@@ -117,4 +120,20 @@ dxgi.maxFrameRate = 500
 ```conf
 # dxvk.conf
 dxgi.maxFrameRate = 500
+```
+
+### Case 11 — X11 · LOWLATENCY ON · VRR OFF · uncapped
+- special case: comparing low-latency on vs off
+- ~670 fps (95-97% gpu usage - intentional, that's what the low-latency pacer does)
+
+```conf
+# dxvk.conf
+```
+
+### Case 12 — X11 · LOWLATENCY OFF · VRR OFF · uncapped
+- special case: comparing low-latency on vs off
+- ~715 fps (100% usage gpu-bound)
+
+```conf
+# dxvk.conf
 ```
